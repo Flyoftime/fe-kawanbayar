@@ -1,15 +1,41 @@
-import React from "react";
+'use client';
+import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast, Toaster } from "react-hot-toast";
+import api from "@/lib/api";
 
 export default function SignIn() {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const response = await api.post("/login", { email, password });
+            const { token } = response.data;
+
+            localStorage.setItem("token", token);
+
+            toast.success("Login berhasil! Mengarahkan...");
+            setTimeout(() => {
+                router.push("/");
+            }, 2000); // kasih jeda 2 detik biar notifnya kebaca
+        } catch (err) {
+            console.error(err.response?.data || err.message);
+            toast.error("Email atau password salah.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6">
-            {/* <div className="w-full flex items-center mb-6">
-                <button className="text-purple-700 text-2xl">&#8592;</button>
-                <h1 className="flex-1 text-center text-purple-700 font-semibold text-xl">Sign in</h1>
-            </div> */}
-
-
+        <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 rounded-t-3xl">
+            <Toaster position="top-center" reverseOrder={false} />
             <div className="w-full max-w-md item-start mb-8">
                 <h2 className="text-2xl font-semibold text-[#3629B7]">Welcome Back</h2>
                 <p className="text-[#343434] font-bold mt-2">Hello there, sign in to continue</p>
@@ -33,16 +59,22 @@ export default function SignIn() {
                 <div className="absolute bottom-2 right-6 w-3 h-3 bg-blue-400 rounded-full"></div>
             </div>
 
-            <div className="w-full max-w-md">
+            <form onSubmit={handleSubmit} className="w-full max-w-md">
                 <input
                     type="text"
                     placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3629B7] text-black"
+                    required
                 />
                 <div className="relative">
                     <input
                         type="password"
                         placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
                         className="w-full p-3 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3629B7] text-black"
                     />
                     <div className="absolute right-3 top-3 text-[#CACACA]">
@@ -58,15 +90,16 @@ export default function SignIn() {
                     </div>
                 </div>
                 <div className="text-right mt-2">
-                    <Link href="#" className="text-[#CACACA] text-sm">Forgot your password ?</Link>
+                    <Link href="/forgotpassword" className="text-[#CACACA] text-sm">Forgot your password?</Link>
                 </div>
                 <button
-                    disabled
-                    className="w-full mt-6 p-3 bg-[#3629B7] text-white font-semibold rounded-lg cursor-not-allowed"
+                    type="submit"
+                    disabled={loading}
+                    className={`w-full mt-6 p-3 bg-[#3629B7] text-white font-semibold rounded-lg ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
-                    Sign in
+                    {loading ? "Loading..." : "Sign in"}
                 </button>
-            </div>
+            </form>
 
             {/* Fingerprint Icon */}
             <div className="mt-8">
@@ -78,7 +111,7 @@ export default function SignIn() {
 
             <div className="flex mt-6 space-x-1">
                 <p className="text-gray-600">Dont have an account?</p>
-                <Link href="#" className="text-[#3629B7] font-semibold">
+                <Link href="/signup" className="text-[#3629B7] font-semibold">
                     Sign Up
                 </Link>
             </div>

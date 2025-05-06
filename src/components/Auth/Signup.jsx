@@ -1,10 +1,61 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast, Toaster } from "react-hot-toast";
+import api from "@/lib/api";
 
 export default function SignUp() {
+    const router = useRouter();
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        password: "",
+        pin: "",
+    });
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (formData.password.length < 8) {
+            toast.error("Password minimal 8 karakter!");
+            return;
+        }
+
+        try {
+            const response = await api.post("/register", formData);
+            console.log("Registrasi sukses:", response.data);
+
+            toast.success("Berhasil daftar! Mengarahkan ke login...");
+            setFormData({ name: "", email: "", password: "", pin: "" });
+
+            setTimeout(() => {
+                router.push("/signin");
+            }, 2000); // Tunggu 2 detik biar user lihat notifikasinya dulu
+        } catch (error) {
+            console.error("Registrasi gagal:", error.response?.data || error.message);
+
+            const errorMessage = error.response?.data?.message || "Registrasi gagal, coba lagi.";
+
+            if (errorMessage.includes("email")) {
+                toast.error("Email sudah terdaftar.");
+            } else if (errorMessage.includes("name") || errorMessage.includes("username")) {
+                toast.error("Username sudah digunakan.");
+            } else {
+                toast.error(errorMessage);
+            }
+        }
+    };
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6">
-            {/* Welcome Text */}
+        <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 rounded-t-3xl">
+            <Toaster position="top-center" reverseOrder={false} />
             <div className="w-full max-w-md text-start mb-8">
                 <h2 className="text-2xl font-bold text-[#3629B7]">
                     Welcome to us,
@@ -67,56 +118,65 @@ export default function SignUp() {
 
             </div>
 
-            <div className="w-full max-w-md">
+            <form className="w-full max-w-md" onSubmit={handleSubmit}>
                 <input
                     type="text"
+                    name="name"
                     placeholder="Name"
+                    value={formData.name}
+                    onChange={handleChange}
                     className="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3629B7] text-black"
+                    required
                 />
                 <input
                     type="email"
+                    name="email"
                     placeholder="Email"
+                    value={formData.email}
+                    onChange={handleChange}
                     className="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3629B7] text-black"
+                    required
                 />
-                <div className="relative">
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        className="w-full p-3 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3629B7] text-black"
-                    />
-                    <div className="absolute right-3 top-3 text-gray-400">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                    </div>
-                </div>
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3629B7] text-black"
+                    required
+                />
+                <input
+                    type="text"
+                    name="pin"
+                    placeholder="Pin"
+                    value={formData.pin}
+                    onChange={handleChange}
+                    className="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3629B7] text-black"
+                    required
+                />
 
+                {/* Checkbox dan syarat */}
                 <div className="flex items-center mt-4">
-                    <input type="checkbox" className="h-4 w-4 text-[#3629B7] focus:ring-[#3629B7] border-gray-300 rounded" />
+                    <input type="checkbox" className="h-4 w-4 text-[#3629B7] border-gray-300 rounded" required />
                     <p className="ml-2 text-sm text-gray-600">
-                        By creating an account your agree to our{' '}
-                        <Link href="#" className="text-[#3629B7] font-semibold">Term and Conditions</Link>
+                        By creating an account you agree to our{" "}
+                        <Link href="#" className="text-[#3629B7] font-semibold">Terms and Conditions</Link>
                     </p>
                 </div>
 
                 <button
-                    disabled
-                    className="w-full mt-6 p-3 bg-[#3629B7] text-white font-semibold rounded-lg cursor-not-allowed"
+                    type="submit"
+                    className="w-full mt-6 p-3 bg-[#3629B7] text-white font-semibold rounded-lg"
                 >
                     Sign up
                 </button>
-            </div>
+            </form>
 
             {/* Sign In Link */}
             <div className="flex mt-6 space-x-1">
                 <p className="text-gray-600">Have an account?</p>
-                <Link href="#" className="text-[#3629B7] font-semibold">
+                <Link href="/signin" className="text-[#3629B7] font-semibold">
                     Sign In
                 </Link>
             </div>

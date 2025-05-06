@@ -1,17 +1,13 @@
-import ForgotPassword from '@/components/Auth/Forgot'
-import ResetPassword from '@/components/Auth/Reset'
-import SignIn from '@/components/Auth/Signin'
-import SignUp from '@/components/Auth/Signup'
+
+import Dashboard from '@/components/Landing/Dashboard'
+import DashboardHeader from '@/components/Landing/HeaderDashboard'
 import BottomNavbar from '@/components/Navbar'
-import Image from 'next/image'
 
 export default function Home() {
   return (
-    <main className="">
-      {/* <SignIn/> */}
-      {/* <SignUp/> */}
-      {/* <ForgotPassword/> */}
-      {/* <ResetPassword/> */}
+    <main className="bg-[#3629B7]">
+    <DashboardHeader/>
+      <Dashboard/>
       <BottomNavbar/>
     </main>
   )

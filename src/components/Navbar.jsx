@@ -1,51 +1,77 @@
+'use client';
+
 import React from "react";
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function BottomNavbar() {
-    return (
-        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg py-2 flex justify-around items-center border-t border-gray-200">
-            {/* Home Button */}
-            <button className="flex items-center space-x-2 bg-[#3629B7] text-white px-4 py-2 rounded-full">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19.6942 8.52164L10.5275 1.02164C10.3786 0.899928 10.1923 0.833435 10 0.833435C9.80772 0.833435 9.62136 0.899928 9.4725 1.02164L0.305835 8.52164C0.138606 8.66274 0.0335787 8.86395 0.0134306 9.08182C-0.00671748 9.29969 0.0596301 9.51674 0.198147 9.68612C0.336665 9.85549 0.536238 9.96359 0.753775 9.98707C0.971312 10.0106 1.18936 9.94755 1.36083 9.81164L2.5 8.87998V18.3333C2.5 18.5543 2.5878 18.7663 2.74408 18.9226C2.90036 19.0788 3.11232 19.1666 3.33333 19.1666H8.33333V14.1666H11.6667V19.1666H16.6667C16.8877 19.1666 17.0996 19.0788 17.2559 18.9226C17.4122 18.7663 17.5 18.5543 17.5 18.3333V8.87998L18.6392 9.81164C18.7236 9.88291 18.8214 9.93666 18.9269 9.96977C19.0323 10.0029 19.1433 10.0147 19.2533 10.0045C19.3633 9.99435 19.4703 9.96238 19.5678 9.9105C19.6654 9.85861 19.7517 9.78784 19.8216 9.70229C19.8916 9.61675 19.9438 9.51814 19.9753 9.41221C20.0068 9.30629 20.0169 9.19515 20.0051 9.08528C19.9932 8.97541 19.9596 8.86899 19.9062 8.77223C19.8529 8.67547 19.7808 8.59028 19.6942 8.52164Z" fill="white" />
+    const pathname = usePathname();
+    const router = useRouter();
+
+    const navItems = [
+        {
+            label: 'Home', path: '/', icon: (
+                <svg width="24" height="23" viewBox="0 0 24 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 10L12 1L23 10" stroke="#898989" stroke-width="1.5" stroke-miterlimit="10" />
+                    <path d="M10 22V16H14V22" stroke="#898989" stroke-width="1.5" stroke-miterlimit="10" />
+                    <path d="M4 12V22H20V12" stroke="#898989" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="square" />
                 </svg>
 
-                <span className="text-sm font-medium">Home</span>
-            </button>
 
-            {/* Search Button */}
-            <button className="text-gray-500">
+            )
+        },
+        {
+            label: 'Activity', path: '/activity', icon: (
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M10 19C8.21997 19 6.47991 18.4722 4.99987 17.4832C3.51983 16.4943 2.36628 15.0887 1.68509 13.4442C1.0039 11.7996 0.82567 9.99002 1.17294 8.24419C1.5202 6.49836 2.37737 4.89472 3.63604 3.63604C4.89472 2.37737 6.49836 1.5202 8.24419 1.17294C9.99002 0.82567 11.7996 1.0039 13.4442 1.68509C15.0887 2.36628 16.4943 3.51983 17.4832 4.99987C18.4722 6.47991 19 8.21997 19 10C18.9971 12.3861 18.0479 14.6736 16.3608 16.3608C14.6736 18.0479 12.3861 18.9971 10 19ZM10 3C8.61553 3 7.26216 3.41055 6.11101 4.17972C4.95987 4.94889 4.06266 6.04214 3.53285 7.32122C3.00303 8.6003 2.86441 10.0078 3.13451 11.3656C3.4046 12.7235 4.07129 13.9708 5.05026 14.9498C6.02922 15.9287 7.2765 16.5954 8.63437 16.8655C9.99224 17.1356 11.3997 16.997 12.6788 16.4672C13.9579 15.9373 15.0511 15.0401 15.8203 13.889C16.5895 12.7379 17 11.3845 17 10C16.9979 8.14414 16.2597 6.36489 14.9474 5.0526C13.6351 3.7403 11.8559 3.00212 10 3Z" fill="#898989" />
                     <path d="M7 10H5C5.00159 8.67441 5.52888 7.40356 6.46622 6.46622C7.40356 5.52888 8.67441 5.00159 10 5V7C9.20435 7 8.44129 7.31607 7.87868 7.87868C7.31607 8.44129 7 9.20435 7 10Z" fill="#898989" />
                     <path d="M22.707 21.293L18.451 17.037C18.0236 17.5503 17.5503 18.0236 17.037 18.451L21.293 22.707C21.4816 22.8891 21.7342 22.9899 21.9964 22.9877C22.2586 22.9854 22.5094 22.8802 22.6948 22.6948C22.8802 22.5094 22.9854 22.2586 22.9877 21.9964C22.9899 21.7342 22.8891 21.4816 22.707 21.293Z" fill="#898989" />
                 </svg>
 
-            </button>
-
-            {/* Message Button */}
-            <button className="text-gray-500">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1.61401 3.55798L12 13L22.385 3.55898" stroke="#898989" stroke-width="1.5" stroke-miterlimit="10" />
-                    <path d="M21 3H3C1.89543 3 1 3.89543 1 5V19C1 20.1046 1.89543 21 3 21H21C22.1046 21 23 20.1046 23 19V5C23 3.89543 22.1046 3 21 3Z" stroke="#898989" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="square" />
+            )
+        },
+        {
+            label: 'Message', path: '/message', icon: (
+                <svg width="24" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1.61401 1.55798L12 11L22.385 1.55898" stroke="#898989" stroke-width="1.5" stroke-miterlimit="10" />
+                    <path d="M21 1H3C1.89543 1 1 1.89543 1 3V17C1 18.1046 1.89543 19 3 19H21C22.1046 19 23 18.1046 23 17V3C23 1.89543 22.1046 1 21 1Z" stroke="#898989" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="square" />
                 </svg>
 
-            </button>
 
-            {/* Settings Button */}
-            <button className="text-gray-500">
+            )
+        },
+        {
+            label: 'Settings', path: '/settings', icon: (
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g clip-path="url(#clip0_23_1215)">
-                        <path d="M23 13.5V10.5L19.752 10.057C19.561 9.29471 19.2577 8.56507 18.852 7.892L20.836 5.282L18.718 3.161L16.108 5.145C15.4349 4.73934 14.7053 4.43603 13.943 4.245L13.5 1H10.5L10.057 4.248C9.29471 4.43903 8.56507 4.74234 7.892 5.148L5.282 3.161L3.161 5.282L5.145 7.892C4.73934 8.56507 4.43603 9.29471 4.245 10.057L1 10.5V13.5L4.248 13.943C4.43903 14.7053 4.74234 15.4349 5.148 16.108L3.164 18.718L5.285 20.839L7.895 18.855C8.56807 19.2607 9.29771 19.564 10.06 19.755L10.5 23H13.5L13.943 19.752C14.7053 19.561 15.4349 19.2577 16.108 18.852L18.718 20.836L20.839 18.715L18.855 16.105C19.2607 15.4319 19.564 14.7023 19.755 13.94L23 13.5Z" stroke="#898989" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="square" />
-                        <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#898989" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="square" />
-                    </g>
-                    <defs>
-                        <clipPath id="clip0_23_1215">
-                            <rect width="24" height="24" fill="white" />
-                        </clipPath>
-                    </defs>
+                    <path d="M23 13.5V10.5L19.752 10.057C19.561 9.29471 19.2577 8.56507 18.852 7.892L20.836 5.282L18.718 3.161L16.108 5.145C15.4349 4.73934 14.7053 4.43603 13.943 4.245L13.5 1H10.5L10.057 4.248C9.29471 4.43903 8.56507 4.74234 7.892 5.148L5.282 3.161L3.161 5.282L5.145 7.892C4.73934 8.56507 4.43603 9.29471 4.245 10.057L1 10.5V13.5L4.248 13.943C4.43903 14.7053 4.74234 15.4349 5.148 16.108L3.164 18.718L5.285 20.839L7.895 18.855C8.56807 19.2607 9.29771 19.564 10.06 19.755L10.5 23H13.5L13.943 19.752C14.7053 19.561 15.4349 19.2577 16.108 18.852L18.718 20.836L20.839 18.715L18.855 16.105C19.2607 15.4319 19.564 14.7023 19.755 13.94L23 13.5Z" stroke="#898989" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="square" />
+                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#898989" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="square" />
                 </svg>
 
-            </button>
+
+            )
+        },
+    ];
+
+    function handleNavigate(path) {
+        router.push(path);
+    }
+
+    return (
+        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg py-2 flex justify-around items-center border-t border-gray-200 z-50">
+            {navItems.map((item) => {
+                const isActive = pathname === item.path;
+                return (
+                    <button
+                        key={item.path}
+                        onClick={() => handleNavigate(item.path)}
+                        className={`flex items-center space-x-2 px-4 py-2 ${isActive ? 'bg-[#3629B7] text-white rounded-full' : 'text-gray-400'}`}
+                    >
+                        {item.icon}
+                        {isActive && (
+                            <span className="text-sm font-medium">{item.label}</span>
+                        )}
+                    </button>
+                );
+            })}
         </div>
     );
 }

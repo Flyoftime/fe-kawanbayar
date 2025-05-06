@@ -1,14 +1,39 @@
-import React from "react";
+'use client';
+import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast, Toaster } from "react-hot-toast";
+import api from "@/lib/api";
 
 export default function ForgotPassword() {
-    return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6">
-            {/* <div className="w-full flex items-center mb-6">
-                <button className="text-purple-700 text-2xl">&#8592;</button>
-                <h1 className="flex-1 text-center text-purple-700 font-semibold text-xl">Forgot Password</h1>
-            </div> */}
+    const [email, setEmail] = useState("");
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const response = await api.post("/forgot-password", { email });
+
+            toast.success("Email ditemukan. Lanjut reset password...");
+            localStorage.setItem("resetEmail", email); // simpan email di localStorage
+            setTimeout(() => {
+                router.push("/resetpassword");
+            }, 1500);
+        } catch (err) {
+            console.error(err.response?.data || err.message);
+            toast.error("Email tidak ditemukan.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 rounded-t-3xl">
+            <Toaster position="top-center" reverseOrder={false} />
             <div className="w-full max-w-md text-start mb-8">
                 <h2 className="text-2xl font-semibold text-[#3629B7]">Reset your Password</h2>
                 <p className="text-[#343434] font-bold mt-2 ">
@@ -30,20 +55,24 @@ export default function ForgotPassword() {
                 </div>
             </div>
 
-            <div className="w-full max-w-md">
+            <form onSubmit={handleSubmit} className="w-full max-w-md">
                 <input
                     type="email"
                     placeholder="Email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full p-3 mb-6 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E5E2FF] text-black"
+                    required
                 />
 
                 <button
-                    disabled
-                    className="w-full p-3 bg-[#3629B7] text-white font-semibold rounded-lg cursor-not-allowed"
+                    type="submit"
+                    className={`w-full p-3 bg-[#3629B7] text-white font-semibold rounded-lg ${loading ? "opacity-50" : ""}`}
+                    disabled={loading}
                 >
-                    Send Reset Link
+                    {loading ? "Mengirim..." : "Send Reset Link"}
                 </button>
-            </div>
+            </form>
 
             <div className="flex mt-6 space-x-1">
                 <p className="text-[#343434]">Remember your password?</p>

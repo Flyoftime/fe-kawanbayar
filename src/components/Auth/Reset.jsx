@@ -1,13 +1,58 @@
-import React from "react";
+'use client';
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast, Toaster } from "react-hot-toast";
+import api from "@/lib/api";
 
 export default function ResetPassword() {
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const router = useRouter();
+
+    useEffect(() => {
+        const savedEmail = localStorage.getItem("resetEmail");
+        if (savedEmail) {
+            setEmail(savedEmail);
+        } else {
+            toast.error("Email tidak ditemukan. Silahkan reset ulang.");
+            router.push("/forgotpassword");
+        }
+    }, [router]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const response = await api.post("/reset-password", {
+                email,
+                password,
+                password_confirmation: confirmPassword,
+            });
+
+            toast.success("Password berhasil direset!");
+            localStorage.removeItem("resetEmail"); 
+            setTimeout(() => {
+                router.push("/signin");
+            }, 1500);
+        } catch (err) {
+            console.error(err.response?.data || err.message);
+            if (err.response?.status === 400 || err.response?.status === 422) {
+                toast.error("Gagal reset password. Periksa password dan konfirmasi.");
+            } else {
+                toast.error("Terjadi kesalahan. Coba beberapa saat lagi.");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6">
-            {/* <div className="w-full flex items-center mb-6">
-                <button className="text-purple-700 text-2xl">&#8592;</button>
-                <h1 className="flex-1 text-center text-purple-700 font-semibold text-xl">Reset Password</h1>
-            </div> */}
+        <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 rounded-t-3xl">
+            <Toaster position="top-center" reverseOrder={false} />
 
             <div className="w-full max-w-md text-start mb-8">
                 <h2 className="text-2xl font-semibold text-[#3629B7]">Create New Password</h2>
@@ -29,26 +74,32 @@ export default function ResetPassword() {
                     </svg>
                 </div>
             </div>
-
-            <div className="w-full max-w-md">
+            <form onSubmit={handleSubmit} className="w-full max-w-md">
                 <input
                     type="password"
                     placeholder="New Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E5E2FF] text-black"
+                    required
                 />
                 <input
                     type="password"
                     placeholder="Confirm New Password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full p-3 mb-6 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E5E2FF] text-black"
+                    required
                 />
 
                 <button
-                    disabled
-                    className="w-full p-3 bg-[#3629B7] text-white font-semibold rounded-lg cursor-not-allowed"
+                    type="submit"
+                    className={`w-full p-3 bg-[#3629B7] text-white font-semibold rounded-lg ${loading ? "opacity-50" : ""}`}
+                    disabled={loading}
                 >
-                    Reset Password
+                    {loading ? "Mengubah..." : "Reset Password"}
                 </button>
-            </div>
+            </form>
 
             {/* Back to Sign In Link */}
             <div className="flex mt-6 space-x-1">
