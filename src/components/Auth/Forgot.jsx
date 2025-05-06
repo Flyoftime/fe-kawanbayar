@@ -18,7 +18,7 @@ export default function ForgotPassword() {
             const response = await api.post("/forgot-password", { email });
 
             toast.success("Email ditemukan. Lanjut reset password...");
-            localStorage.setItem("resetEmail", email); // simpan email di localStorage
+            localStorage.setItem("resetEmail", email);
             setTimeout(() => {
                 router.push("/resetpassword");
             }, 1500);

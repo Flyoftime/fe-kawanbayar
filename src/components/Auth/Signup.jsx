@@ -38,7 +38,7 @@ export default function SignUp() {
 
             setTimeout(() => {
                 router.push("/signin");
-            }, 2000); // Tunggu 2 detik biar user lihat notifikasinya dulu
+            }, 2000);
         } catch (error) {
             console.error("Registrasi gagal:", error.response?.data || error.message);
 
@@ -64,8 +64,6 @@ export default function SignUp() {
                     Hello there, create New account
                 </p>
             </div>
-
-            {/* Image Placeholder */}
             <div className="relative mb-8">
                 <svg width="213" height="165" viewBox="0 0 213 165" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="110" cy="90" r="75" fill="#F2F1F9" />

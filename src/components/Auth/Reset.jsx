@@ -101,7 +101,6 @@ export default function ResetPassword() {
                 </button>
             </form>
 
-            {/* Back to Sign In Link */}
             <div className="flex mt-6 space-x-1">
                 <p className="text-gray-600">Back to</p>
                 <Link href="#" className="text-[#3629B7] font-semibold">
