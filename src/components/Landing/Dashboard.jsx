@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import React from "react";
+import api from "@/lib/api";
 import {
   FaBell,
   FaWallet,
@@ -21,14 +22,32 @@ const Dashboard = ({ notificationCount = 0 }) => {
   const [card, setUserCard] = useState(null);
   const [balance, setUserBalance] = useState(null);
 
+  //   useEffect(() => {
+  //     const user = localStorage.getItem("user");
+  //     if (user) {
+  //       const parsed = JSON.parse(user);
+  //       setUserName(parsed.name || parsed.username || "User");
+  //       setUserCard(parsed.card_number || "Card Number");
+  //       setUserBalance(parsed.balance || "Balance");
+  //     }
+  //   }, []);
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) {
-      const parsed = JSON.parse(user);
-      setUserName(parsed.name || parsed.username || "User");
-      setUserCard(parsed.card_number || "Card Number");
-      setUserBalance(parsed.balance || "Balance");
-    }
+    const fetchProfile = async () => {
+      try {
+        const res = await api.get("/user/profile");
+        console.log(res.data);
+
+        setUserName(res.data.data.name || "User");
+        setUserCard(res.data.data.wallet.card_number || "-");
+        setUserBalance(res.data.data.wallet.balance || 0);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+        setUserName("Guest");
+        setUserCard("-");
+        setUserBalance(0);
+      }
+    };
+    fetchProfile();
   }, []);
 
   return (
@@ -146,36 +165,6 @@ const Dashboard = ({ notificationCount = 0 }) => {
         </Link>
 
         <Link
-          href="/transaction-report"
-          className="flex flex-col items-center bg-white p-4 rounded-xl shadow-sm"
-        >
-          <div className="text-2xl text-[#3629B7] mb-2">
-            <svg
-              width="28"
-              height="28"
-              viewBox="0 0 28 28"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g clip-path="url(#clip0_43_1974)">
-                <path
-                  d="M2.33337 1.16667V26.8333C2.33337 27.1428 2.45629 27.4395 2.67508 27.6583C2.89388 27.8771 3.19062 28 3.50004 28H24.5C24.8095 28 25.1062 27.8771 25.325 27.6583C25.5438 27.4395 25.6667 27.1428 25.6667 26.8333V1.16667C25.6667 0.857247 25.5438 0.560501 25.325 0.341709C25.1062 0.122916 24.8095 0 24.5 0L3.50004 0C3.19062 0 2.89388 0.122916 2.67508 0.341709C2.45629 0.560501 2.33337 0.857247 2.33337 1.16667ZM5.83337 5.83333H12.8334V12.8333H5.83337V5.83333ZM22.1667 22.1667H5.83337V19.8333H22.1667V22.1667ZM22.1667 17.5H5.83337V15.1667H22.1667V17.5ZM22.1667 12.8333H15.1667V10.5H22.1667V12.8333ZM22.1667 8.16667H15.1667V5.83333H22.1667V8.16667Z"
-                  fill="#3629B7"
-                />
-              </g>
-              <defs>
-                <clipPath id="clip0_43_1974">
-                  <rect width="28" height="28" fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-          </div>
-          <p className="text-xs text-gray-600 text-center">
-            Transaction Report
-          </p>
-        </Link>
-
-        <Link
           href="/mobile-prepaid"
           className="flex flex-col items-center bg-white p-4 rounded-xl shadow-sm"
         >
@@ -252,19 +241,22 @@ const Dashboard = ({ notificationCount = 0 }) => {
           <div className="text-2xl text-[#3629B7] mb-2">
             <svg
               width="28"
-              height="24"
-              viewBox="0 0 28 24"
+              height="28"
+              viewBox="0 0 28 28"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <path
-                d="M28 6.99883V2.33333C28 1.04417 26.9558 0 25.6667 0H2.33333C1.04417 0 0 1.04417 0 2.33333V6.99883H28Z"
-                fill="#FB6B18"
-              />
-              <path
-                d="M0 10.5V21C0 22.2892 1.04417 23.3333 2.33333 23.3333H25.6667C26.9558 23.3333 28 22.2892 28 21V10.5H0ZM12.8333 17.5H4.66667V15.1667H12.8333V17.5ZM23.3333 17.5H18.6667V15.1667H23.3333V17.5Z"
-                fill="#FB6B18"
-              />
+              <g clip-path="url(#clip0_43_1974)">
+                <path
+                  d="M2.33337 1.16667V26.8333C2.33337 27.1428 2.45629 27.4395 2.67508 27.6583C2.89388 27.8771 3.19062 28 3.50004 28H24.5C24.8095 28 25.1062 27.8771 25.325 27.6583C25.5438 27.4395 25.6667 27.1428 25.6667 26.8333V1.16667C25.6667 0.857247 25.5438 0.560501 25.325 0.341709C25.1062 0.122916 24.8095 0 24.5 0L3.50004 0C3.19062 0 2.89388 0.122916 2.67508 0.341709C2.45629 0.560501 2.33337 0.857247 2.33337 1.16667ZM5.83337 5.83333H12.8334V12.8333H5.83337V5.83333ZM22.1667 22.1667H5.83337V19.8333H22.1667V22.1667ZM22.1667 17.5H5.83337V15.1667H22.1667V17.5ZM22.1667 12.8333H15.1667V10.5H22.1667V12.8333ZM22.1667 8.16667H15.1667V5.83333H22.1667V8.16667Z"
+                  fill="#3629B7"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_43_1974">
+                  <rect width="28" height="28" fill="white" />
+                </clipPath>
+              </defs>
             </svg>
           </div>
           <p className="text-xs text-gray-600 text-center">top Ups</p>
