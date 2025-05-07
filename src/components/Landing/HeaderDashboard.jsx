@@ -1,29 +1,24 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { FaBell } from 'react-icons/fa';
-import { jwtDecode } from 'jwt-decode'; // ✅ perbaiki di sini
+import { useEffect, useState } from "react";
+import { FaBell } from "react-icons/fa";
+import { jwtDecode } from "jwt-decode"; // ✅ perbaiki di sini
 
 const DashboardHeader = ({ notificationCount = 0 }) => {
   const [userName, setUserName] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        console.log("Decoded token:", decoded); // Bantu debug
-        setUserName(decoded.username || decoded.username || 'User');
-      } catch (error) {
-        console.error('Token tidak valid:', error);
-      }
+    const user = localStorage.getItem("user");
+    if (user) {
+      const parsed = JSON.parse(user);
+      setUserName(parsed.name || parsed.username || "User");
     }
   }, []);
 
   return (
     <div className="p-4 rounded-b-2xl flex justify-between items-center">
       <h1 className="text-white text-lg font-semibold">
-        Hi, {userName || 'Guest'}
+        Hi, {userName || "Guest"}
       </h1>
 
       <div className="relative">
