@@ -1,92 +1,154 @@
 'use client';
+
 import { FaChevronLeft, FaSearch, FaEnvelope, FaCog, FaHome } from 'react-icons/fa';
 import { MdOutlineReceipt } from 'react-icons/md';
+import { useEffect, useState } from 'react';
+import api from '@/lib/api';
 
 export default function ActivityPage() {
+    const [transactionsToday, setTransactionsToday] = useState([]);
+    const [transactionsYesterday, setTransactionsYesterday] = useState([]);
+    const [olderTransactions, setOlderTransactions] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchTransactionHistory();
+    }, []);
+    const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        return date.toISOString().split('T')[0]; // hasilnya YYYY-MM-DD
+    };
+
+    const getToday = () => new Date().toISOString().split('T')[0];
+
+    const getYesterday = () => {
+        const date = new Date();
+        date.setDate(date.getDate() - 1);
+        return date.toISOString().split('T')[0];
+    };
+
+    const fetchTransactionHistory = async () => {
+        try {
+            const response = await api.get('/user/transaction-history');
+
+            console.log('Raw response:', response.data);
+            const data = Array.isArray(response.data) ? response.data : response.data.data;
+
+            if (!Array.isArray(data)) {
+                console.error('Expected an array of transactions but got:', data);
+                return;
+            }
+
+            const today = getToday();
+            const yesterday = getYesterday();
+
+            const todayTransactions = [];
+            const yesterdayTransactions = [];
+            const olderTransactionsList = [];
+
+            data.forEach((item) => {
+                if (!item.transaction_date) return;
+
+                const transactionDate = formatDate(item.transaction_date);
+                console.log(`Parsed date: ${transactionDate}, Today: ${today}, Yesterday: ${yesterday}`);
+
+                if (transactionDate === today) {
+                    todayTransactions.push(item);
+                } else if (transactionDate === yesterday) {
+                    yesterdayTransactions.push(item);
+                } else {
+                    olderTransactionsList.push(item);
+                }
+            });
+
+            setTransactionsToday(todayTransactions);
+            setTransactionsYesterday(yesterdayTransactions);
+            setOlderTransactions(olderTransactionsList);
+        } catch (error) {
+            console.error('Failed to fetch transaction history', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-gray-500 text-sm">Loading...</div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-white flex flex-col rounded-t-3xl">
-
-            {/* Activity Content */}
             <div className="flex-1 px-4 pt-6 space-y-6">
-                {/* Today */}
-                <div>
-                    <h3 className="text-xs font-semibold text-[#989898] mb-4">Today</h3>
-                    <ActivityItem
-                        color="bg-[#4A24C2]"
-                        svg={<svg width="12" height="16" viewBox="0 0 12 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6.47313 0.200062C6.3454 0.0787474 6.17596 0.0111084 5.9998 0.0111084C5.82364 0.0111084 5.6542 0.0787474 5.52646 0.200062C5.30113 0.424728 -0.000202383 5.80739 -0.000202383 9.3334C-0.00795282 10.1235 0.141949 10.9072 0.440733 11.6386C0.739517 12.3701 1.18118 13.0346 1.73988 13.5933C2.29859 14.152 2.9631 14.5937 3.69456 14.8925C4.42601 15.1912 5.20971 15.3411 5.9998 15.3334C6.78988 15.3411 7.57358 15.1912 8.30504 14.8925C9.03649 14.5937 9.70101 14.152 10.2597 13.5933C10.8184 13.0346 11.2601 12.3701 11.5589 11.6386C11.8576 10.9072 12.0075 10.1235 11.9998 9.3334C11.9998 5.80739 6.69846 0.424728 6.47313 0.200062ZM6.66646 12.0001H5.9998C5.64799 12.0059 5.2986 11.941 4.97241 11.809C4.64623 11.6771 4.34992 11.4809 4.10112 11.2321C3.85232 10.9833 3.65612 10.687 3.52418 10.3608C3.39224 10.0346 3.32727 9.6852 3.33313 9.3334V8.66673H4.66646V9.3334C4.66646 9.68702 4.80694 10.0262 5.05699 10.2762C5.30704 10.5263 5.64618 10.6667 5.9998 10.6667H6.66646V12.0001Z" fill="white" />
-                        </svg>
-                        }
-                        title="Water Bill"
-                        status="Unsuccessfully"
-                        amount="- $280"
-                        amountColor="text-[#FF3B30]"
-                    />
-                </div>
 
-                {/* Yesterday */}
-                <div>
-                    <h3 className="text-xs font-semibold text-[#989898] mb-4">Yesterday</h3>
-                    <ActivityItem
-                        color="bg-[#FF5E7A]"
-                        svg={<svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M11.0002 2L9.00016 0L7.00016 2L5.00016 0L3.00016 2L0.333496 0V15.3333C0.333496 15.702 0.632163 16 1.00016 16H13.0002C13.3682 16 13.6668 15.702 13.6668 15.3333V0L11.0002 2ZM7.3675 12.2187V13.2867H6.65416V12.24C5.80683 12.2227 5.0635 12.0733 4.42483 11.792V10.4173C5.02483 10.714 5.97683 10.974 6.65416 11.016V9.40133C5.4615 8.93867 4.41483 8.49 4.41483 7.20333C4.41483 6.03467 5.48683 5.48533 6.65416 5.37V4.57267H7.3675V5.34867C8.16216 5.38333 8.8815 5.54333 9.5235 5.828L9.03416 7.04667C8.49283 6.82467 7.93683 6.68933 7.3675 6.64067V8.17733C8.63283 8.664 9.6435 9.10733 9.6435 10.2867C9.6435 11.53 8.61083 12.1047 7.3675 12.2187Z" fill="white" />
-                        </svg>
+                {transactionsToday.length > 0 && (
+                    <div>
+                        <h3 className="text-xs font-semibold text-[#989898] mb-4">Today</h3>
+                        {transactionsToday.map((item) => (
+                            <ActivityItem
+                                key={item.id}
+                                color="bg-[#4A24C2]"
+                                title={item.description || 'No Description'}
+                                status={item.status}
+                                amount={item.amount}
+                                amountColor={
+                                    item.amount.toString().startsWith('-') ? 'text-[#FF3B30]' : 'text-[#6A28FB]'
+                                }
+                            />
+                        ))}
+                    </div>
+                )}
 
-                        }
-                        title="Income: Salary Oct"
-                        status="Successfully"
-                        amount="+$1200"
-                        amountColor="text-[#6A28FB]"
-                    />
-                    <ActivityItem
-                        color="bg-[#418BFF]"
-                        svg={<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M8.27589 10.6666L9.60922 9.33329L8.66656 8.39062L7.33322 9.72396L6.27589 8.66662L7.60922 7.33329L6.66656 6.39062L5.33322 7.72396L4.44722 6.83862C4.32221 6.71364 4.15267 6.64343 3.97589 6.64343C3.79912 6.64343 3.62958 6.71364 3.50456 6.83862L2.50456 7.83862C1.83586 8.50644 1.42573 9.38981 1.34711 10.3316C1.2685 11.2734 1.5265 12.2125 2.07522 12.982L0.195225 14.862C0.131551 14.9235 0.0807631 14.997 0.0458238 15.0784C0.0108844 15.1597 -0.0075064 15.2472 -0.00827561 15.3357C-0.00904482 15.4242 0.00782299 15.512 0.0413436 15.5939C0.0748642 15.6759 0.124366 15.7503 0.186961 15.8129C0.249557 15.8755 0.323991 15.925 0.405922 15.9585C0.487853 15.992 0.575639 16.0089 0.664159 16.0081C0.752678 16.0074 0.840158 15.989 0.921494 15.954C1.00283 15.9191 1.07639 15.8683 1.13789 15.8046L3.01789 13.9246C3.78746 14.4734 4.72679 14.7314 5.66873 14.6527C6.61066 14.574 7.49412 14.1636 8.16189 13.4946L9.16189 12.4946C9.28687 12.3696 9.35708 12.2001 9.35708 12.0233C9.35708 11.8465 9.28687 11.677 9.16189 11.552L8.27589 10.6666Z" fill="white" />
-                            <path d="M11.5524 9.16135C11.6775 9.28633 11.847 9.35654 12.0238 9.35654C12.2005 9.35654 12.3701 9.28633 12.4951 9.16135L13.4951 8.16135C14.1638 7.49353 14.5739 6.61016 14.6525 5.66838C14.7312 4.72659 14.4732 3.78745 13.9244 3.01801L15.8044 1.13801C15.8681 1.07652 15.9189 1.00295 15.9538 0.921616C15.9888 0.84028 16.0072 0.7528 16.0079 0.664281C16.0087 0.575761 15.9918 0.487975 15.9583 0.406044C15.9248 0.324113 15.8753 0.249679 15.8127 0.187083C15.7501 0.124488 15.6757 0.0749862 15.5937 0.0414656C15.5118 0.00794506 15.424 -0.00892275 15.3355 -0.00815354C15.247 -0.00738433 15.1595 0.0110065 15.0782 0.0459458C14.9968 0.0808852 14.9233 0.131673 14.8618 0.195347L12.9818 2.07535C12.2122 1.52653 11.2729 1.26854 10.3309 1.34728C9.389 1.42601 8.50554 1.83638 7.83777 2.50535L6.83777 3.50535C6.71279 3.63037 6.64258 3.7999 6.64258 3.97668C6.64258 4.15346 6.71279 4.323 6.83777 4.44801L11.5524 9.16135Z" fill="white" />
-                        </svg>
-                        }
-                        title="Electric Bill"
-                        status="Successfully"
-                        amount="- $480"
-                        amountColor="text-[#FF3B30]"
-                    />
-                    <ActivityItem
-                        color="bg-[#FFBA40]"
-                        svg={<svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M13.0002 0H1.00016C0.632163 0 0.333496 0.298 0.333496 0.666667V16L3.00016 14L5.00016 16L7.00016 14L9.00016 16L11.0002 14L13.6668 16V0.666667C13.6668 0.298 13.3682 0 13.0002 0ZM7.66683 10.6667H3.00016V9.33333H7.66683V10.6667ZM7.66683 8H3.00016V6.66667H7.66683V8ZM7.66683 5.33333H3.00016V4H7.66683V5.33333ZM11.0002 10.6667H9.00016V9.33333H11.0002V10.6667ZM11.0002 8H9.00016V6.66667H11.0002V8ZM11.0002 5.33333H9.00016V4H11.0002V5.33333Z" fill="white" />
-                        </svg>
-                        }
-                        title="Income : Jane transfers"
-                        status="Successfully"
-                        amount="+ $500"
-                        amountColor="text-[#6A28FB]"
-                    />
-                    <ActivityItem
-                        color="bg-[#2AC6B7]"
-                        svg={<svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M11.0002 2L9.00016 0L7.00016 2L5.00016 0L3.00016 2L0.333496 0V15.3333C0.333496 15.702 0.632163 16 1.00016 16H13.0002C13.3682 16 13.6668 15.702 13.6668 15.3333V0L11.0002 2ZM7.66683 12.6667H3.00016V11.3333H7.66683V12.6667ZM7.66683 10H3.00016V8.66667H7.66683V10ZM7.66683 7.33333H3.00016V6H7.66683V7.33333ZM11.0002 12.6667H9.00016V11.3333H11.0002V12.6667ZM11.0002 10H9.00016V8.66667H11.0002V10ZM11.0002 7.33333H9.00016V6H11.0002V7.33333Z" fill="white" />
-                        </svg>
-                        }
-                        title="Internet Bill"
-                        status="Successfully"
-                        amount="- $100"
-                        amountColor="text-[#FF3B30]"
-                    />
-                </div>
+                {transactionsYesterday.length > 0 && (
+                    <div>
+                        <h3 className="text-xs font-semibold text-[#989898] mb-4">Yesterday</h3>
+                        {transactionsYesterday.map((item) => (
+                            <ActivityItem
+                                key={item.id}
+                                color="bg-[#418BFF]"
+                                title={item.description || 'No Description'}
+                                status={item.status}
+                                amount={item.amount}
+                                amountColor={
+                                    item.amount.toString().startsWith('-') ? 'text-[#FF3B30]' : 'text-[#6A28FB]'
+                                }
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {olderTransactions.length > 0 && (
+                    <div>
+                        <h3 className="text-xs font-semibold text-[#989898] mb-4">Earlier</h3>
+                        {olderTransactions.map((item) => (
+                            <ActivityItem
+                                key={item.id}
+                                color="bg-[#FDBA74]"
+                                title={item.description || 'No Description'}
+                                status={item.status}
+                                amount={item.amount}
+                                amountColor={
+                                    item.amount.toString().startsWith('-') ? 'text-[#FF3B30]' : 'text-[#6A28FB]'
+                                }
+                            />
+                        ))}
+                    </div>
+                )}
+
             </div>
-
-
         </div>
     );
 }
 
-function ActivityItem({ color, icon, title, status, amount, amountColor, svg }) {
+function ActivityItem({ color, title, status, amount, amountColor }) {
     return (
         <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-4">
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${color}`}>
-                    {icon || svg}
+                    <div className="text-white font-bold">💰</div>
                 </div>
                 <div>
                     <div className="text-[#343434] font-semibold text-sm">{title}</div>
@@ -94,7 +156,7 @@ function ActivityItem({ color, icon, title, status, amount, amountColor, svg }) 
                 </div>
             </div>
             <div className={`text-sm font-semibold ${amountColor}`}>
-                {amount}
+                {typeof amount === 'number' ? `Rp${amount.toLocaleString()}` : amount}
             </div>
         </div>
     );

@@ -1,7 +1,16 @@
 'use client';
-import { FaChevronLeft, FaChevronRight, FaCog, FaEnvelope, FaHome, FaSearch } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
+import { FaChevronRight, FaSignOutAlt } from 'react-icons/fa'; // Tambahkan icon logout
 
 export default function SettingPage() {
+    const router = useRouter();
+
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        router.push('/');
+    };
+
     return (
         <div className="flex flex-col min-h-screen bg-[#F9F9F9]">
 
@@ -39,10 +48,16 @@ export default function SettingPage() {
                         <span className="text-sm text-[#343434]">Customer care</span>
                         <span className="text-[#B7B7B7] text-sm">19008989</span>
                     </div>
+
+                    <button
+                        onClick={handleLogout}
+                        className="flex justify-between items-center w-full px-6 py-4"
+                    >
+                        <span className="text-sm text-red-500">Log Out</span>
+                        <FaSignOutAlt className="text-red-500 text-sm" />
+                    </button>
                 </div>
             </div>
-
-
         </div>
     );
 }
